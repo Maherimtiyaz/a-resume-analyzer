@@ -1,18 +1,11 @@
 from fastapi import FastAPI
-from app.models.resume import Resume
-from app.utils.text_cleaner import clean_text
+from app.api.routes import router as api_router
 
-if __name__ == "__main__":
-    raw_text = "   Hello, World!!!   "
-    cleaned = clean_text(raw_text)
-    print("Cleaned text:", cleaned)
+def create_app() -> FastAPI:
+    app = FastAPI(title="AI Resume Analyzer", version="0.1")
+    app.include_router(api_router, prefix="/api")
+    return app
 
-    resume = Resume(
-        name="John Doe",
-        skills=["Python", "FastAPI", "SQL", "AI"],
-        experience=3
-    )
+app = create_app()
 
-    print()
-    print(resume.summary())
 
