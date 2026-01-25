@@ -25,3 +25,8 @@ Thumbs.db
 *.joblib
 *.h5
 data/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
