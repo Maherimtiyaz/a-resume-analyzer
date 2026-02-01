@@ -1,0 +1,43 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'Bcakend/**'
+      - 'frontend/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Docker images
+      run: |
+        docker-compose build
+    
+    - name: Push to Docker Hub (optional)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        echo "Configure Docker Hub credentials in secrets"
+        # docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        # docker tag ai-resume-analyzer-backend:latest ${{ secrets.DOCKER_USERNAME }}/ai-resume-analyzer-backend:latest
+        # docker push ${{ secrets.DOCKER_USERNAME }}/ai-resume-analyzer-backend:latest
+    
+    - name: Deploy to server (optional)
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: |
+        echo "Configure SSH deployment to your server"
+        # SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_KEY }}
+        # SSH_HOST: ${{ secrets.DEPLOY_HOST }}
+        # SSH_USER: ${{ secrets.DEPLOY_USER }}
+    
+    - name: Notify Slack (optional)
+      if: always()
+      run: |
+        echo "Configure Slack notifications"
+        # SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

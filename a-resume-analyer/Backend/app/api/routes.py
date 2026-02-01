@@ -1,10 +1,9 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, FastAPI
 from pydantic import BaseModel, Field
 from pathlib import Path
 from datetime import datetime
 from typing import List, Optional
 import json
-
 from app.services.preprocessing import process_text
 from app.services.vectorizer import TextVectorizer
 from app.services.matcher import compute_similarity
@@ -360,3 +359,13 @@ def match_to_multiple_jobs(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing matches: {str(e)}")
+
+app = FastAPI()
+
+@app.get("/health", tags=["health"])
+async def health_check():
+    return {
+        "status": "ok",
+        "service": "ai-resume-analyzer",
+        "version": "0.1.0"
+    }

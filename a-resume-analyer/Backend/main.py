@@ -5,12 +5,20 @@ import logging
 from pathlib import Path
 
 from app.api.routes import router as api_router
+from app.api.auth_routes import router as auth_router
+from app.api.resume_routes import router as resume_router
 from app.core.config import settings
 from app.core.dependencies import set_vectorizer
 from app.services.vectorizer import TextVectorizer
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+LOG_LEVEL = settings.LOG_LEVEL if hasattr(settings, "LOG_LEVEL") else "INFO"
+
+logging.basicConfig(
+    level=LOG_LEVEL,
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -58,20 +66,22 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(
         title="AI Resume Analyzer",
-        version="0.1.0",
-        description="Production-grade AI Resume Analyzer using TF-IDF and cosine similarity",
+        version="0.2.0",
+        description="Production-grade AI Resume Analyzer with resume building, ATS optimization, and job matching",
         lifespan=lifespan
     )
     
     # Configure CORS for frontend
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000"],
+        allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"],
         allow_credentials=True,
         allow_methods=["*"],
-        allow_headers=["*"],
+        allow_headers=["*", "Authorization"],
     )
     
+    app.include_router(auth_router, prefix="/api")
+    app.include_router(resume_router, prefix="/api")
     app.include_router(api_router, prefix="/api")
     return app
 

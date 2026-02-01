@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
-import { Sparkles, Github } from 'lucide-react'
+import { Sparkles, Github, LogOut, LogIn, UserPlus } from 'lucide-react'
 
-export default function Header() {
+export default function Header({ onLogout, onLoginClick, onSignupClick, isAuthenticated }) {
   return (
     <motion.header
       initial={{ y: -100 }}
@@ -28,20 +28,46 @@ export default function Header() {
               <h1 className="text-2xl font-bold gradient-text">
                 AI Resume Analyzer
               </h1>
-              <p className="text-xs text-gray-400">Powered by ML & NLP</p>
             </div>
           </motion.div>
 
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="#features" className="text-gray-300 hover:text-white transition-colors">
+          <nav className="flex items-center space-x-6">
+            <a href="#features" className="hidden md:block text-gray-300 hover:text-white transition-colors">
               Features
             </a>
-            <a href="#how-it-works" className="text-gray-300 hover:text-white transition-colors">
+            <a href="#how-it-works" className="hidden md:block text-gray-300 hover:text-white transition-colors">
               How it Works
             </a>
             <a href="https://github.com" target="_blank" rel="noopener noreferrer">
               <Github className="w-5 h-5 text-gray-300 hover:text-white transition-colors" />
             </a>
+            
+            {isAuthenticated ? (
+              <button
+                onClick={onLogout}
+                className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              >
+                <LogOut size={18} />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={onLoginClick}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-primary-400 hover:bg-primary-500/10 rounded-lg transition-all"
+                >
+                  <LogIn size={18} />
+                  <span className="hidden sm:inline">Sign In</span>
+                </button>
+                <button
+                  onClick={onSignupClick}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary-500 to-accent-500 text-white hover:shadow-lg hover:shadow-primary-500/50 rounded-lg transition-all"
+                >
+                  <UserPlus size={18} />
+                  <span className="hidden sm:inline">Sign Up</span>
+                </button>
+              </>
+            )}
           </nav>
         </div>
       </div>

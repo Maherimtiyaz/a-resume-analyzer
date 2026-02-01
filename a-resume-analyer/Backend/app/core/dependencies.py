@@ -2,7 +2,9 @@
 from pathlib import Path
 from fastapi import HTTPException, Header
 from typing import Optional
+from sqlalchemy.orm import Session
 from app.core.config import settings
+from app.core.database import SessionLocal
 
 # Global vectorizer instance - loaded on startup
 _vectorizer = None
@@ -20,6 +22,14 @@ def get_vectorizer():
             detail="Model not loaded. Please train the model first using /api/admin/retrain"
         )
     return _vectorizer
+
+def get_db():
+    """Dependency to get database session"""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 async def verify_admin_token(x_admin_token: str = Header(...)):
     """Simple admin authentication via header token"""

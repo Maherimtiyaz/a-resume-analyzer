@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Sparkles, Zap, Target } from 'lucide-react'
 
-export default function Hero({ onGetStarted }) {
+export default function Hero({ onGetStarted, onResumeBuilder, onPricing }) {
   return (
     <section className="min-h-screen flex items-center justify-center pt-20 px-6">
       <div className="max-w-6xl mx-auto text-center">
@@ -16,54 +16,60 @@ export default function Hero({ onGetStarted }) {
             whileHover={{ scale: 1.05 }}
           >
             <Sparkles className="w-4 h-4 text-primary-500" />
-            <span className="text-sm text-gray-300">AI-Powered Matching Engine</span>
+            <span className="text-sm text-gray-300">AI-Powered Resume Tool</span>
           </motion.div>
 
           {/* Main Heading */}
-          <h1 className="text-6xl md:text-8xl font-bold mb-6">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
             <span className="gradient-text animate-gradient">
               Smart Resume
             </span>
             <br />
-            <span className="text-white">Matching</span>
+            <span className="text-white">Analyzer</span>
           </h1>
 
           {/* Subheading */}
-          <p className="text-xl md:text-2xl text-gray-400 mb-12 max-w-3xl mx-auto">
-            Analyze resumes against job descriptions with cutting-edge{' '}
-            <span className="text-primary-500 font-semibold">TF-IDF</span> and{' '}
-            <span className="text-accent-500 font-semibold">ML algorithms</span>.
-            Get instant similarity scores.
+          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Build ATS-friendly resumes, match your skills with perfect jobs, and optimize your career with{' '}
+            <span className="text-primary-500 font-semibold">AI-powered</span> analytics.{' '}
+            <span className="text-accent-500 font-semibold">Free trial included</span>.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 flex-wrap">
             <motion.button
               onClick={onGetStarted}
-              className="group relative px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl font-semibold text-lg overflow-hidden"
-              whileHover={{ scale: 1.05 }}
+              className="group relative px-8 py-4 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg font-semibold text-lg text-white shadow-lg shadow-primary-500/50 hover:shadow-primary-500/75 transition-shadow"
+              whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(99, 102, 241, 0.6)' }}
               whileTap={{ scale: 0.95 }}
             >
-              <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-accent-500 to-primary-500"
-                initial={{ x: '-100%' }}
-                whileHover={{ x: 0 }}
-                transition={{ duration: 0.3 }}
-              />
-              <span className="relative flex items-center space-x-2">
+              <span className="flex items-center space-x-2">
                 <Zap className="w-5 h-5" />
-                <span>Start Analyzing</span>
+                <span>Start Matching</span>
               </span>
             </motion.button>
 
             <motion.button
-              className="px-8 py-4 glass glass-hover rounded-xl font-semibold text-lg"
+              onClick={onResumeBuilder}
+              className="px-8 py-4 border-2 border-primary-500/50 hover:border-primary-500 text-white rounded-lg font-semibold text-lg transition-all hover:bg-primary-500/10"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <span className="flex items-center space-x-2">
                 <Target className="w-5 h-5" />
-                <span>View Demo</span>
+                <span>Build Resume</span>
+              </span>
+            </motion.button>
+
+            <motion.button
+              onClick={onPricing}
+              className="px-8 py-4 border-2 border-accent-500/50 hover:border-accent-500 text-white rounded-lg font-semibold text-lg transition-all hover:bg-accent-500/10"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <span className="flex items-center space-x-2">
+                <Sparkles className="w-5 h-5" />
+                <span>View Plans</span>
               </span>
             </motion.button>
           </div>
@@ -71,9 +77,9 @@ export default function Hero({ onGetStarted }) {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
             {[
-              { label: 'Accuracy', value: '98%', icon: Target },
+              { label: 'ATS Score', value: '100%', icon: Target },
               { label: 'Speed', value: '<1s', icon: Zap },
-              { label: 'Features', value: '10+', icon: Sparkles },
+              { label: 'Templates', value: '5+', icon: Sparkles },
             ].map((stat, i) => (
               <motion.div
                 key={i}

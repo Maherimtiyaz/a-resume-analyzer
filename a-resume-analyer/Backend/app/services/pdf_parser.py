@@ -1,8 +1,11 @@
 # app/services/pdf_parser.py
 import io
 from typing import Optional
-import PyPDF2
-import pdfplumber
+try:
+    import pypdf as PyPDF2
+except ImportError:
+    import PyPDF2
+    
 import logging
 
 logger = logging.getLogger(__name__)
@@ -55,6 +58,11 @@ class PDFParser:
     @staticmethod
     def _extract_with_pdfplumber(pdf_bytes: bytes) -> str:
         """Extract text using pdfplumber (better formatting)"""
+        try:
+            import pdfplumber
+        except ImportError:
+            raise ImportError("pdfplumber not installed")
+        
         text_parts = []
         
         with io.BytesIO(pdf_bytes) as pdf_file:

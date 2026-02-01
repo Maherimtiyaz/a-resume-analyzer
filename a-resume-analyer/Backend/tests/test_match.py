@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app
+from Bcakend.main import app
 from app.core.dependencies import set_vectorizer
 from app.services.vectorizer import TextVectorizer
 
