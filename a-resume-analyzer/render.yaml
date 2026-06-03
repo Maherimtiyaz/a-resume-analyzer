@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: ai-resume-analyzer-backend
+    region: oregon
+    plan: free
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-resume-analyzer-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: APP_NAME
+        value: "AI Resume Analyzer"
+      - key: VERSION
+        value: "0.2.1"
+    healthCheckPath: /api/health
+    healthCheckStartFailureThreshold: 3
+
+databases:
+  - name: ai-resume-analyzer-db
+    engine: postgresql
+    version: "15"
+    plan: free
+    region: oregon
+
+envVarGroups:
+  - name: Backend
+    envVars:
+      - key: APP_NAME
+        value: AI Resume Analyzer
+      - key: VERSION
+        value: "0.2.1"
+      - key: ADMIN_EMAIL
+        value: admin@resumeanalyzer.com

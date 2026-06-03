@@ -1,0 +1,40 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production..."
+        echo "This would typically deploy to your cloud provider"
+        echo "Examples: AWS, Azure, GCP, Heroku, DigitalOcean, etc."
+    
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          ## What's Changed
+          - Automated release from CI/CD pipeline
+          
+          ## Docker Images
+          - Backend: `docker pull ${{ secrets.DOCKER_USERNAME }}/ai-resume-analyzer:latest`
+          - Frontend: `docker pull ${{ secrets.DOCKER_USERNAME }}/ai-resume-analyzer-frontend:latest`
+        draft: false
+        prerelease: false
