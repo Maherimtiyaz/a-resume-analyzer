@@ -11,7 +11,7 @@ from pathlib import Path
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app.core.database import engine, Base, User, Subscription
+from app.Backend.app.core.database import engine, Base, User, Subscription
 
 
 def init_database():

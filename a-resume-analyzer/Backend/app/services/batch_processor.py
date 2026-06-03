@@ -4,8 +4,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 from datetime import datetime
 
-from app.services.preprocessing import process_text
-from app.services.matcher import compute_similarity
+from app.Backend.app.services.preprocessing import process_text
+from app.Backend.app.services.matcher import compute_similarity
 
 logger = logging.getLogger(__name__)
 

@@ -10,16 +10,16 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-from app.core.limiter import limiter
-from app.core.cache import init_redis, close_redis
+from app.Backend.app.core.limiter import limiter
+from app.Backend.app.core.cache import init_redis, close_redis
 
-from app.api.routes import router as api_router
-from app.api.auth_routes import router as auth_router
-from app.api.resume_routes import router as resume_router
-from app.api.admin_routes import router as admin_router
-from app.core.config import settings
-from app.core.dependencies import set_vectorizer
-from app.services.vectorizer import TextVectorizer
+from app.Backend.app.api.routes import router as api_router
+from app.Backend.app.api.auth_routes import router as auth_router
+from app.Backend.app.api.resume_routes import router as resume_router
+from app.Backend.app.api.admin_routes import router as admin_router
+from app.Backend.app.core.config import settings
+from app.Backend.app.core.dependencies import set_vectorizer
+from app.Backend.app.services.vectorizer import TextVectorizer
 
 # Configure logging
 LOG_LEVEL = settings.LOG_LEVEL if hasattr(settings, "LOG_LEVEL") else "INFO"

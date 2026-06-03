@@ -3,10 +3,10 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
-from app.core.database import get_db, User, Subscription, ResumeBuild
-from app.api.auth_routes import get_current_user
-from app.schemas.auth import ResumeBuilderRequest, ResumeGenerationResponse, ResumeTemplate
-from app.services.resume_generator import (
+from app.Backend.app.core.database import get_db, User, Subscription, ResumeBuild
+from app.Backend.app.api.auth_routes import get_current_user
+from app.Backend.app.schemas.auth import ResumeBuilderRequest, ResumeGenerationResponse, ResumeTemplate
+from app.Backend.app.services.resume_generator import (
     generate_ats_score,
     generate_resume_html,
     generate_resume_pdf,

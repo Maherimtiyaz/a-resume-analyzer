@@ -5,16 +5,16 @@ from datetime import datetime
 from typing import List, Optional
 import json
 import hashlib
-from app.services.preprocessing import process_text
-from app.services.vectorizer import TextVectorizer
-from app.services.matcher import compute_similarity
-from app.services.pdf_parser import parse_resume_pdf
-from app.services.batch_processor import BatchProcessor, MultiJobMatcher
-from app.services.llm_matcher import llm_match_resume
-from app.core.dependencies import get_vectorizer, verify_admin_token
-from app.core.config import settings
-from app.core.limiter import limiter
-from app.core.cache import get_cache, set_cache
+from app.Backend.app.services.preprocessing import process_text
+from app.Backend.app.services.vectorizer import TextVectorizer
+from app.Backend.app.services.matcher import compute_similarity
+from app.Backend.app.services.pdf_parser import parse_resume_pdf
+from app.Backend.app.services.batch_processor import BatchProcessor, MultiJobMatcher
+from app.Backend.app.services.llm_matcher import llm_match_resume
+from app.Backend.app.core.dependencies import get_vectorizer, verify_admin_token
+from app.Backend.app.core.config import settings
+from app.Backend.app.core.limiter import limiter
+from app.Backend.app.core.cache import get_cache, set_cache
 
 router = APIRouter()
 
@@ -192,7 +192,7 @@ def retrain_model(admin_token: str = Depends(verify_admin_token)):
             VECTOR_PATH,
             META_PATH
         )
-        from app.core.dependencies import set_vectorizer
+        from app.Backend.app.core.dependencies import set_vectorizer
         
         # Ensure artifact directory exists
         ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)

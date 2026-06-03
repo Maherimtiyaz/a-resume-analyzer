@@ -3,8 +3,8 @@
 from fastapi import APIRouter, HTTPException, Depends, status, Header, Request
 from sqlalchemy.orm import Session
 from typing import Optional
-from app.core.database import get_db, User, Subscription
-from app.core.auth import (
+from app.Backend.app.core.database import get_db, User, Subscription
+from app.Backend.app.core.auth import (
     hash_password,
     verify_password,
     create_access_token,
@@ -12,8 +12,8 @@ from app.core.auth import (
     verify_token,
     create_email_verification_token
 )
-from app.core.limiter import limiter
-from app.schemas.auth import UserSignup, UserLogin, TokenResponse, UserResponse, SubscriptionResponse
+from app.Backend.app.core.limiter import limiter
+from app.Backend.app.schemas.auth import UserSignup, UserLogin, TokenResponse, UserResponse, SubscriptionResponse
 import logging
 
 logger = logging.getLogger(__name__)

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
-from app.core.database import get_db, User, ResumeBuild, MatchHistory
-from app.api.auth_routes import get_current_user
-from app.core.limiter import limiter
+from app.Backend.app.core.database import get_db, User, ResumeBuild, MatchHistory
+from app.Backend.app.api.auth_routes import get_current_user
+from app.Backend.app.core.limiter import limiter
 from datetime import datetime, timedelta
 
 router = APIRouter(prefix="/admin", tags=["Admin"])

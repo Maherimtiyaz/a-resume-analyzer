@@ -3,8 +3,8 @@ from pathlib import Path
 from fastapi import HTTPException, Header
 from typing import Optional
 from sqlalchemy.orm import Session
-from app.core.config import settings
-from app.core.database import SessionLocal
+from app.Backend.app.core.config import settings
+from app.Backend.app.core.database import SessionLocal
 
 # Global vectorizer instance - loaded on startup
 _vectorizer = None
