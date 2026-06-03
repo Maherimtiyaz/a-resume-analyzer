@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: ai-resume-analyzer-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn Backend.main:app --host 0.0.0.0 --port 10000
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-resume-analyzer-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: LOG_LEVEL
+        value: INFO
+    healthCheckPath: /health
+    healthCheckStartFailureThreshold: 3
+    preDeployCommand: alembic upgrade head
+
+databases:
+  - name: ai-resume-analyzer-db
+    engine: postgresql
+    version: "15"
+    plan: free
+    region: oregon
+
+envVarGroups:
+  - name: Backend
+    envVars:
+      - key: APP_NAME
+        value: AI Resume Analyzer
+      - key: VERSION
+        value: "0.2.1"
+      - key: ADMIN_EMAIL
+        value: admin@resumeanalyzer.com
