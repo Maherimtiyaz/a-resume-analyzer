@@ -1,14 +1,11 @@
 services:
   - type: web
     name: ai-resume-analyzer-backend
-    env: python
     region: oregon
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn Backend.main:app --host 0.0.0.0 --port 10000
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11
+        value: "3.10"
       - key: DATABASE_URL
         fromDatabase:
           name: ai-resume-analyzer-db
@@ -21,9 +18,12 @@ services:
         value: "*"
       - key: LOG_LEVEL
         value: INFO
-    healthCheckPath: /health
+      - key: APP_NAME
+        value: "AI Resume Analyzer"
+      - key: VERSION
+        value: "0.2.1"
+    healthCheckPath: /api/health
     healthCheckStartFailureThreshold: 3
-    preDeployCommand: alembic upgrade head
 
 databases:
   - name: ai-resume-analyzer-db
