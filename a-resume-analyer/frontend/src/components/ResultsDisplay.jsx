@@ -52,11 +52,14 @@ export default function ResultsDisplay({ result, loading }) {
           >
             {/* Score Card */}
             <motion.div
-              className="glass p-8 rounded-2xl relative overflow-hidden"
-              initial={{ y: 20 }}
-              animate={{ y: 0 }}
+              className="glass p-8 rounded-2xl relative overflow-hidden group"
+              initial={{ y: 20, scale: 0.95 }}
+              animate={{ y: 0, scale: 1 }}
+              whileHover={{ scale: 1.02, rotateX: 2, rotateY: -2 }}
+              transition={{ type: "spring", stiffness: 100 }}
+              style={{ perspective: 1000 }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-accent-500/10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-accent-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-6">
@@ -139,21 +142,50 @@ export default function ResultsDisplay({ result, loading }) {
                     </div>
                   </div>
                 </div>
+                
+                {result.used_llm && (
+                   <div className="mt-4 flex items-center justify-center space-x-2">
+                     <span className="text-xs bg-primary-500/20 text-primary-400 px-3 py-1 rounded-full border border-primary-500/30">
+                       🤖 AI Powered Analysis
+                     </span>
+                     {result.is_cached && (
+                       <span className="text-xs bg-accent-500/20 text-accent-400 px-3 py-1 rounded-full border border-accent-500/30">
+                         ⚡ Cached Result
+                       </span>
+                     )}
+                   </div>
+                )}
               </div>
             </motion.div>
 
             {/* Recommendations */}
             <motion.div
-              className="glass p-6 rounded-2xl"
+              className="glass p-6 rounded-2xl relative overflow-hidden group"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.2, type: "spring" }}
+              whileHover={{ scale: 1.02, rotateX: -2, rotateY: 2 }}
+              style={{ perspective: 1000 }}
             >
-              <div className="flex items-center space-x-2 mb-4">
-                <TrendingUp className="w-5 h-5 text-primary-500" />
-                <h4 className="font-semibold text-white">Recommendations</h4>
-              </div>
-              <ul className="space-y-3">
+              <div className="absolute inset-0 bg-gradient-to-bl from-primary-500/5 to-accent-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <div className="flex items-center space-x-2 mb-4">
+                  <TrendingUp className="w-5 h-5 text-primary-500" />
+                  <h4 className="font-semibold text-white">Recommendations</h4>
+                </div>
+                
+                {/* Check if we have LLM suggestions */}
+                {result.suggestions && result.suggestions.length > 0 ? (
+                  <ul className="space-y-3">
+                    {result.suggestions.map((suggestion, idx) => (
+                      <li key={idx} className="flex items-start space-x-3">
+                        <div className="w-2 h-2 bg-primary-400 rounded-full mt-2" />
+                        <p className="text-gray-300 text-sm">{suggestion}</p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <ul className="space-y-3">
                 {result.match_score < 0.6 && (
                   <li className="flex items-start space-x-3">
                     <div className="w-2 h-2 bg-yellow-400 rounded-full mt-2" />
@@ -180,12 +212,60 @@ export default function ResultsDisplay({ result, loading }) {
                 )}
                 <li className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-primary-400 rounded-full mt-2" />
-                  <p className="text-gray-300 text-sm">
-                    Review common keywords between your resume and job description
-                  </p>
-                </li>
-              </ul>
+                    <p className="text-gray-300 text-sm">
+                      Review common keywords between your resume and job description
+                    </p>
+                  </li>
+                  </ul>
+                )}
+              </div>
             </motion.div>
+
+            {/* Keyword Analysis (LLM Only) */}
+            {result.used_llm && (result.matched_keywords?.length > 0 || result.missing_keywords?.length > 0) && (
+              <motion.div
+                className="glass p-6 rounded-2xl relative overflow-hidden group"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3, type: "spring" }}
+                whileHover={{ scale: 1.02, rotateX: 2, rotateY: 2 }}
+                style={{ perspective: 1000 }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-primary-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold text-green-400 mb-3 flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4" /> Matched Keywords
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {result.matched_keywords?.map((kw, i) => (
+                        <span key={i} className="text-xs bg-green-500/10 text-green-300 px-2 py-1 rounded border border-green-500/20">
+                          {kw}
+                        </span>
+                      ))}
+                      {(!result.matched_keywords || result.matched_keywords.length === 0) && (
+                        <span className="text-xs text-gray-500">None found</span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-red-400 mb-3 flex items-center gap-2">
+                      <XCircle className="w-4 h-4" /> Missing Keywords
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {result.missing_keywords?.map((kw, i) => (
+                        <span key={i} className="text-xs bg-red-500/10 text-red-300 px-2 py-1 rounded border border-red-500/20">
+                          {kw}
+                        </span>
+                      ))}
+                      {(!result.missing_keywords || result.missing_keywords.length === 0) && (
+                        <span className="text-xs text-gray-500">None missing</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
         ) : (
           <motion.div

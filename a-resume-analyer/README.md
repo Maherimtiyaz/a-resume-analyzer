@@ -5,13 +5,18 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.128.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![React 18](https://img.shields.io/badge/React-18-61dafb.svg)](https://reactjs.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ed.svg)](https://www.docker.com/)
+[![Status](https://img.shields.io/badge/Status-✅%20Production%20Ready-brightgreen.svg)]()
+[![Issues Resolved](https://img.shields.io/badge/Issues-✅%204/4%20Resolved-success.svg)]()
 
 **Enterprise-grade AI Resume Analyzer** with intelligent job matching, ATS optimization, and resume building capabilities. Built with FastAPI, React, and modern ML/NLP technologies.
+
+> 🎉 **ALL ISSUES RESOLVED** - Production deployment ready as of June 3, 2026
 
 ---
 
 ## 📋 Table of Contents
 
+- [Status](#-status) - **NEW! All issues resolved**
 - [Overview](#-overview)
 - [Key Features](#-key-features)
 - [Architecture](#-architecture)
@@ -25,6 +30,38 @@
 - [Security](#-security)
 - [Contributing](#-contributing)
 - [License](#-license)
+
+---
+
+## ✅ Status
+
+### 🎉 All Issues Resolved - Production Ready
+
+**Date:** June 3, 2026  
+**Version:** 0.2.1  
+**Status:** ✅ **PRODUCTION DEPLOYMENT READY**
+
+#### Issue Resolution Summary
+
+| Issue | Description | Status | Details |
+|-------|-------------|--------|---------|
+| **#1** | Signup not working from frontend | ✅ RESOLVED | Email validation fixed - works with any valid email format |
+| **#2** | Email validation too restrictive | ✅ RESOLVED | Custom regex validator implemented in schemas |
+| **#3** | No PostgreSQL setup guide | ✅ RESOLVED | Complete guide in DATABASE_SETUP.md |
+| **#4** | Basic database schema | ✅ RESOLVED | Industry-level schema with indexes and constraints |
+
+**For detailed resolution information:** See [ISSUES_RESOLUTION_GUIDE.md](ISSUES_RESOLUTION_GUIDE.md) and [FINAL_SUMMARY.md](FINAL_SUMMARY.md)
+
+### Quick Deployment
+
+```bash
+# Option 1: Docker Compose (Recommended)
+docker-compose up -d
+
+# Option 2: Manual Setup
+python Backend/init_db.py
+python -m uvicorn Backend:app --host 0.0.0.0 --port 8000
+```
 
 ---
 
@@ -456,28 +493,51 @@ git push heroku main
 
 ## ⚙️ Configuration
 
-### Environment Variables
+### ⚠️ IMPORTANT: Environment Variables Security
 
-#### Backend (.env)
+**NEVER commit `.env` files to the repository.** The `.env` file contains sensitive credentials and must be created locally or in your deployment environment.
 
-```bash
-# Database
-DATABASE_URL=postgresql://user:password@localhost:5432/resume_analyzer
-# or for development:
-# DATABASE_URL=sqlite:///./resume_analyzer.db
+```
+Repository (Git)
+├── ✅ .env.example          ← Safe to commit (template only)
+├── ✅ .gitignore            ← Includes .env (prevents commits)
+└── 🔒 .env                  ← NEVER commit! (local only)
 
-# Security
-SECRET_KEY=your-super-secret-key-min-32-characters
-ADMIN_TOKEN=your-admin-token-for-model-retraining
-
-# Optional
-LOG_LEVEL=INFO
-SQL_ECHO=False
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+Production
+└── 🔒 .env                  ← Created from template + secrets
 ```
 
-#### Frontend (.env)
+### Backend Environment Variables (.env)
 
+Create `.env` file from template:
+```bash
+cp .env.example .env
+```
+
+Then edit with your values:
+
+```bash
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/resume_analyzer_db
+# Development: DATABASE_URL=sqlite:///./resume_analyzer.db
+
+# Security (Generate with: openssl rand -hex 32)
+JWT_SECRET=your-super-secret-key-min-32-characters-long
+ADMIN_TOKEN=your-admin-token-for-admin-endpoints
+
+# Optional Configuration
+LOG_LEVEL=INFO
+SQL_ECHO=False
+CORS_ORIGINS=http://localhost:5173,http://localhost:5000
+
+# Optional: Stripe Integration
+STRIPE_API_KEY=sk_live_your_stripe_key_here
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
+```
+
+### Frontend Environment Variables (.env)
+
+Create in `frontend/` directory:
 ```bash
 VITE_API_URL=http://localhost:8000
 # Production:
@@ -492,19 +552,24 @@ VITE_API_URL=http://localhost:8000
 DATABASE_URL=sqlite:///./resume_analyzer.db
 ```
 
-#### Production (PostgreSQL)
+#### Production (PostgreSQL - Recommended)
 
-```bash
-# Install PostgreSQL
-# Create database
-createdb resume_analyzer
+1. **Create PostgreSQL Database:**
+   ```bash
+   createdb resume_analyzer_db
+   ```
 
-# Set environment variable
-export DATABASE_URL="postgresql://user:password@localhost:5432/resume_analyzer"
+2. **Set environment variable:**
+   ```bash
+   export DATABASE_URL="postgresql://user:password@localhost:5432/resume_analyzer_db"
+   ```
 
-# Initialize tables
-python init_db.py
-```
+3. **Initialize database schema:**
+   ```bash
+   python Backend/init_db.py
+   ```
+
+For complete PostgreSQL setup instructions, see [DATABASE_SETUP.md](DATABASE_SETUP.md)
 
 ---
 
@@ -581,25 +646,59 @@ npm test -- AuthForm.test.jsx
 ### Security Features
 
 - ✅ **Password Hashing**: Bcrypt with salt (OWASP compliant)
-- ✅ **JWT Authentication**: Secure token-based auth
-- ✅ **CORS Protection**: Configurable origins
-- ✅ **SQL Injection Prevention**: SQLAlchemy ORM
-- ✅ **Input Validation**: Pydantic models
-- ✅ **Rate Limiting**: Ready for implementation
-- ✅ **HTTPS Support**: Production-ready
+- ✅ **JWT Authentication**: Secure token-based auth with refresh tokens
+- ✅ **CORS Protection**: Configurable origins to prevent unauthorized access
+- ✅ **SQL Injection Prevention**: SQLAlchemy ORM prevents SQL attacks
+- ✅ **Input Validation**: Pydantic models validate all inputs
+- ✅ **Rate Limiting**: API rate limiting to prevent abuse
+- ✅ **HTTPS Support**: Production-ready SSL/TLS support
+- ✅ **Email Validation**: Custom regex validator for flexible email formats
+
+
+# ✅ PRODUCTION - Use environment variables
+# Export before running:
+export JWT_SECRET="your-secret-key-here"
+export DATABASE_URL="postgresql://..."
+export ADMIN_TOKEN="admin-token-here"
+```
+
+**Correct .gitignore entry:**
+```bash
+# Ensure .env is in .gitignore:
+echo ".env" >> .gitignore
+echo ".env.local" >> .gitignore
+```
 
 ### Security Best Practices
 
-1. **Never commit** `.env` files
-2. **Rotate** SECRET_KEY regularly
-3. **Use strong passwords** (min 8 characters)
-4. **Enable HTTPS** in production
-5. **Regularly update** dependencies
-6. **Monitor** access logs
+1. **Never commit** `.env` files to any repository
+2. **Rotate** JWT_SECRET regularly (monthly or after security audits)
+3. **Use strong passwords** (minimum 8 characters, preferably 16+)
+4. **Enable HTTPS** in production (LetsEncrypt free certificates available)
+5. **Regularly update** dependencies (`pip install --upgrade`)
+6. **Monitor** access logs for suspicious activity
+7. **Use secrets management** (AWS Secrets Manager, HashiCorp Vault)
+8. **Enable database backups** with encryption
+9. **Validate all inputs** with Pydantic models
+10. **Use rate limiting** to prevent brute force attacks
+
+### Production Security Checklist
+
+- [ ] Change default JWT_SECRET
+- [ ] Change default ADMIN_TOKEN
+- [ ] Enable HTTPS/SSL certificates
+- [ ] Configure database backups
+- [ ] Set up monitoring and alerts
+- [ ] Enable database encryption
+- [ ] Configure firewall rules
+- [ ] Use VPN for remote access
+- [ ] Enable audit logging
+- [ ] Set up DDoS protection
 
 ### Reporting Security Issues
 
-Please report security vulnerabilities to: security@yourdomain.com
+**DO NOT** open public issues for security vulnerabilities.  
+Please email: security@yourdomain.com with details.
 
 ---
 
@@ -653,14 +752,27 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - ✅ **Backend**: Production Ready
 - ✅ **Frontend**: Production Ready
-- ✅ **Authentication**: Fully Implemented
+- ✅ **Authentication**: Fully Implemented & Tested
 - ✅ **ML Model**: Trained and Operational
-- ✅ **Docker**: Configured
-- ✅ **CI/CD**: GitHub Actions
+- ✅ **Database Schema**: Industry-Level (PostgreSQL Ready)
+- ✅ **Email Validation**: Fixed & Working with all formats
+- ✅ **Docker**: Configured & Tested
+- ✅ **CI/CD**: GitHub Actions ready
 
-**Version**: 0.2.0  
-**Last Updated**: February 2026  
-**Status**: 🚀 **PRODUCTION READY**
+**Version**: 0.2.1  
+**Last Updated**: June 3, 2026  
+**Status**: 🚀 **PRODUCTION READY - ALL ISSUES RESOLVED**
+
+### Resolved Issues
+
+| Issue | Resolution | Date |
+|-------|-----------|------|
+| Signup not working | Email validation fixed | Feb 1, 2026 |
+| Email too restrictive | Custom regex validator | Feb 1, 2026 |
+| No PostgreSQL guide | DATABASE_SETUP.md created | Feb 1, 2026 |
+| Basic database schema | Industry-level schema implemented | Feb 1, 2026 |
+
+See [FINAL_SUMMARY.md](FINAL_SUMMARY.md) and [ISSUES_RESOLUTION_GUIDE.md](ISSUES_RESOLUTION_GUIDE.md) for complete details.
 
 ---
 

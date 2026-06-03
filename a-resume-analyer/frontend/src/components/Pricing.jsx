@@ -117,18 +117,22 @@ export default function Pricing() {
             return (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: idx * 0.1 }}
-                whileHover={{ y: -5 }}
-                className={`relative rounded-2xl p-8 transition-all ${
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ delay: idx * 0.1, type: "spring", stiffness: 100 }}
+                whileHover={{ y: -10, scale: 1.02, rotateX: 2, rotateY: idx === 0 ? 2 : -2 }}
+                style={{ perspective: 1000 }}
+                className={`relative rounded-2xl p-8 transition-all overflow-hidden group cursor-pointer ${
                   plan.highlighted
-                    ? 'glass glass-hover border border-primary-500/50 shadow-lg shadow-primary-500/20'
-                    : 'glass glass-hover border border-white/10'
+                    ? 'glass border border-primary-500/50 shadow-xl shadow-primary-500/20'
+                    : 'glass border border-white/10'
                 }`}
               >
-                {plan.highlighted && (
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative z-10">
+                  {plan.highlighted && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-gradient-to-r from-primary-500 to-accent-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
                       Most Popular
@@ -191,6 +195,7 @@ export default function Pricing() {
                     </motion.div>
                   ))}
                 </div>
+                </div>
               </motion.div>
             )
           })}
@@ -205,21 +210,42 @@ export default function Pricing() {
         >
           <h3 className="text-2xl font-bold text-white mb-8 text-center">Premium Features Include</h3>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="glass glass-hover p-6 rounded-xl">
-              <Download className="w-8 h-8 text-primary-400 mb-3" />
-              <h4 className="text-lg font-semibold text-white mb-2">PDF Downloads</h4>
-              <p className="text-gray-400">Download your optimized resume as a high-quality PDF file ready for applications</p>
-            </div>
-            <div className="glass glass-hover p-6 rounded-xl">
-              <Sparkles className="w-8 h-8 text-accent-400 mb-3" />
-              <h4 className="text-lg font-semibold text-white mb-2">AI Customization</h4>
-              <p className="text-gray-400">Get AI-powered suggestions to tailor your resume for specific job descriptions</p>
-            </div>
-            <div className="glass glass-hover p-6 rounded-xl">
-              <Zap className="w-8 h-8 text-yellow-400 mb-3" />
-              <h4 className="text-lg font-semibold text-white mb-2">ML Optimization</h4>
-              <p className="text-gray-400">Advanced machine learning algorithms analyze and optimize your resume for ATS systems</p>
-            </div>
+            <motion.div 
+              className="glass p-6 rounded-xl relative overflow-hidden group"
+              whileHover={{ scale: 1.02, rotateX: 5, rotateY: 5 }}
+              style={{ perspective: 1000 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <Download className="w-8 h-8 text-primary-400 mb-3" />
+                <h4 className="text-lg font-semibold text-white mb-2">PDF Downloads</h4>
+                <p className="text-gray-400">Download your optimized resume as a high-quality PDF file ready for applications</p>
+              </div>
+            </motion.div>
+            <motion.div 
+              className="glass p-6 rounded-xl relative overflow-hidden group"
+              whileHover={{ scale: 1.02, rotateX: -5, rotateY: 5 }}
+              style={{ perspective: 1000 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-accent-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <Sparkles className="w-8 h-8 text-accent-400 mb-3" />
+                <h4 className="text-lg font-semibold text-white mb-2">AI Customization</h4>
+                <p className="text-gray-400">Get AI-powered suggestions to tailor your resume for specific job descriptions</p>
+              </div>
+            </motion.div>
+            <motion.div 
+              className="glass p-6 rounded-xl relative overflow-hidden group"
+              whileHover={{ scale: 1.02, rotateX: 5, rotateY: -5 }}
+              style={{ perspective: 1000 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10">
+                <Zap className="w-8 h-8 text-yellow-400 mb-3" />
+                <h4 className="text-lg font-semibold text-white mb-2">ML Optimization</h4>
+                <p className="text-gray-400">Advanced machine learning algorithms analyze and optimize your resume for ATS systems</p>
+              </div>
+            </motion.div>
           </div>
         </motion.div>
       </div>

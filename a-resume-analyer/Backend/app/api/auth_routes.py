@@ -1,6 +1,6 @@
 """Authentication and Authorization Routes"""
 
-from fastapi import APIRouter, HTTPException, Depends, status, Header
+from fastapi import APIRouter, HTTPException, Depends, status, Header, Request
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.core.database import get_db, User, Subscription
@@ -12,6 +12,7 @@ from app.core.auth import (
     verify_token,
     create_email_verification_token
 )
+from app.core.limiter import limiter
 from app.schemas.auth import UserSignup, UserLogin, TokenResponse, UserResponse, SubscriptionResponse
 import logging
 
@@ -44,7 +45,8 @@ def get_current_user(token: str, db: Session = Depends(get_db)) -> User:
 
 
 @router.post("/signup", response_model=TokenResponse)
-def signup(payload: UserSignup, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def signup(request: Request, payload: UserSignup, db: Session = Depends(get_db)):
     """User signup endpoint"""
     
     # Validate email format
@@ -113,7 +115,8 @@ def signup(payload: UserSignup, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(payload: UserLogin, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, payload: UserLogin, db: Session = Depends(get_db)):
     """User login endpoint"""
     
     # Validate inputs

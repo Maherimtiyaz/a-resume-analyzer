@@ -113,21 +113,27 @@ export default function ResumeBuilder() {
             {templates.map((template) => (
               <motion.div
                 key={template.name}
-                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.02, rotateX: 2, rotateY: 2 }}
+                style={{ perspective: 1000 }}
                 onClick={() => setSelectedTemplate(template.name)}
-                className={`p-6 rounded-lg cursor-pointer transition ${
+                className={`p-6 rounded-2xl cursor-pointer transition-all duration-300 relative overflow-hidden group ${
                   selectedTemplate === template.name
-                    ? 'bg-gradient-to-r from-primary-500 to-accent-500 border-2 border-primary-400'
-                    : 'bg-dark-800 border border-dark-600 hover:border-primary-500'
+                    ? 'glass border border-primary-500 shadow-xl shadow-primary-500/20'
+                    : 'glass border border-white/10 hover:border-primary-500/50'
                 }`}
               >
-                <h4 className="text-lg font-semibold text-white">{template.display_name}</h4>
-                <p className="text-sm text-gray-300 mt-2">{template.description}</p>
-                {template.ats_optimized && (
-                  <span className="inline-block mt-3 px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded">
-                    ATS Optimized
-                  </span>
-                )}
+                <div className={`absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent transition-opacity duration-500 ${selectedTemplate === template.name ? 'opacity-100' : 'opacity-0 group-hover:opacity-50'}`} />
+                <div className="relative z-10">
+                  <h4 className="text-lg font-semibold text-white">{template.display_name}</h4>
+                  <p className="text-sm text-gray-300 mt-2">{template.description}</p>
+                  {template.ats_optimized && (
+                    <span className="inline-block mt-3 px-3 py-1 bg-green-500/20 text-green-400 text-xs rounded-full border border-green-500/30 shadow-[0_0_10px_rgba(74,222,128,0.2)]">
+                      ATS Optimized
+                    </span>
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>
@@ -147,8 +153,10 @@ export default function ResumeBuilder() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             onSubmit={handleSubmit}
-            className="bg-dark-800 p-8 rounded-lg space-y-6 border border-dark-600"
+            className="glass p-8 rounded-2xl space-y-6 relative overflow-hidden"
           >
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-accent-500/5 pointer-events-none" />
+            <div className="relative z-10">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-white mb-2">Full Name</label>
@@ -156,7 +164,7 @@ export default function ResumeBuilder() {
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                  className="w-full bg-dark-700 border border-dark-600 rounded px-4 py-2 text-white"
+                  className="w-full bg-dark-900/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
                   required
                 />
               </div>
@@ -166,7 +174,7 @@ export default function ResumeBuilder() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full bg-dark-700 border border-dark-600 rounded px-4 py-2 text-white"
+                  className="w-full bg-dark-900/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
                   required
                 />
               </div>
@@ -176,7 +184,7 @@ export default function ResumeBuilder() {
                   type="tel"
                   value={formData.phone}
                   onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="w-full bg-dark-700 border border-dark-600 rounded px-4 py-2 text-white"
+                  className="w-full bg-dark-900/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
                   required
                 />
               </div>
@@ -186,7 +194,7 @@ export default function ResumeBuilder() {
                   type="text"
                   value={formData.location}
                   onChange={(e) => setFormData({...formData, location: e.target.value})}
-                  className="w-full bg-dark-700 border border-dark-600 rounded px-4 py-2 text-white"
+                  className="w-full bg-dark-900/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
                   required
                 />
               </div>
@@ -197,7 +205,7 @@ export default function ResumeBuilder() {
               <textarea
                 value={formData.summary}
                 onChange={(e) => setFormData({...formData, summary: e.target.value})}
-                className="w-full bg-dark-700 border border-dark-600 rounded px-4 py-2 text-white"
+                className="w-full bg-dark-900/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
                 rows={3}
               />
             </div>
@@ -209,7 +217,7 @@ export default function ResumeBuilder() {
                 value={formData.skills}
                 onChange={(e) => setFormData({...formData, skills: e.target.value})}
                 placeholder="Python, React, AWS, ..."
-                className="w-full bg-dark-700 border border-dark-600 rounded px-4 py-2 text-white"
+                className="w-full bg-dark-900/50 border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary-500 transition-colors"
               />
             </div>
 
@@ -224,10 +232,11 @@ export default function ResumeBuilder() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="flex-1 bg-dark-700 border border-dark-600 text-white px-6 py-2 rounded-lg hover:border-primary-500 transition"
+                className="flex-1 glass glass-hover text-white px-6 py-2 rounded-lg transition"
               >
                 Cancel
               </button>
+            </div>
             </div>
           </motion.form>
         )}
@@ -238,36 +247,43 @@ export default function ResumeBuilder() {
         <div>
           <h3 className="text-2xl font-bold text-white mb-4">My Resumes</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {resumes.map((resume) => (
+            {resumes.map((resume, i) => (
               <motion.div
                 key={resume.id}
-                whileHover={{ scale: 1.02 }}
-                className="bg-dark-800 border border-dark-600 rounded-lg p-6 hover:border-primary-500 transition"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1, type: "spring" }}
+                whileHover={{ scale: 1.02, rotateX: 2, rotateY: 2 }}
+                style={{ perspective: 1000 }}
+                className="glass p-6 rounded-2xl relative overflow-hidden group"
               >
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h4 className="text-lg font-semibold text-white capitalize">
-                      {resume.template}
-                    </h4>
-                    <p className="text-sm text-gray-400">
-                      ATS Score: <span className="text-primary-400 font-semibold">{(resume.ats_score * 100).toFixed(0)}%</span>
-                    </p>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h4 className="text-lg font-semibold text-white capitalize">
+                        {resume.template}
+                      </h4>
+                      <p className="text-sm text-gray-400 mt-1">
+                        ATS Score: <span className="text-primary-400 font-semibold px-2 py-0.5 bg-primary-500/10 rounded border border-primary-500/20">{(resume.ats_score * 100).toFixed(0)}%</span>
+                      </p>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => downloadResume(resume.id)}
-                    className="flex-1 flex items-center justify-center gap-2 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded transition"
-                  >
-                    <Download size={18} />
-                    Download
-                  </button>
-                  <button
-                    className="flex items-center justify-center gap-2 bg-dark-700 hover:bg-dark-600 text-white px-4 py-2 rounded transition"
-                  >
-                    <Eye size={18} />
-                  </button>
+                  
+                  <div className="flex gap-2 mt-auto">
+                    <button
+                      onClick={() => downloadResume(resume.id)}
+                      className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-primary-500 to-accent-500 hover:shadow-lg hover:shadow-primary-500/50 text-white py-2 rounded-lg transition-all"
+                    >
+                      <Download size={18} />
+                      Download
+                    </button>
+                    <button
+                      className="flex items-center justify-center gap-2 glass glass-hover text-white px-4 py-2 rounded-lg transition-all"
+                    >
+                      <Eye size={18} />
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ))}

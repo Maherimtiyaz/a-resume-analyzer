@@ -1,16 +1,20 @@
-from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, FastAPI
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, FastAPI, Request
 from pydantic import BaseModel, Field
 from pathlib import Path
 from datetime import datetime
 from typing import List, Optional
 import json
+import hashlib
 from app.services.preprocessing import process_text
 from app.services.vectorizer import TextVectorizer
 from app.services.matcher import compute_similarity
 from app.services.pdf_parser import parse_resume_pdf
 from app.services.batch_processor import BatchProcessor, MultiJobMatcher
+from app.services.llm_matcher import llm_match_resume
 from app.core.dependencies import get_vectorizer, verify_admin_token
 from app.core.config import settings
+from app.core.limiter import limiter
+from app.core.cache import get_cache, set_cache
 
 router = APIRouter()
 
@@ -24,6 +28,11 @@ class MatchResponse(BaseModel):
     match_score: float = Field(..., ge=0.0, le=1.0, description="Similarity score between 0 and 1")
     processed_resume_tokens: int = Field(..., description="Number of tokens after preprocessing")
     processed_job_tokens: int = Field(..., description="Number of tokens after preprocessing")
+    matched_keywords: Optional[List[str]] = None
+    missing_keywords: Optional[List[str]] = None
+    suggestions: Optional[List[str]] = None
+    is_cached: bool = False
+    used_llm: bool = False
 
 
 class RetrainResponse(BaseModel):
@@ -94,43 +103,68 @@ def health_check():
 
 
 @router.post("/match", response_model=MatchResponse)
-def match_resume(payload: MatchRequest, vectorizer: TextVectorizer = Depends(get_vectorizer)):
+@limiter.limit("20/minute")
+async def match_resume(request: Request, payload: MatchRequest, vectorizer: TextVectorizer = Depends(get_vectorizer)):
     """
-    Match a resume against a job description using pre-trained model.
-    Returns a similarity score between 0 and 1.
+    Match a resume against a job description.
+    Uses LLM if available, falls back to pre-trained ML model.
+    Results are cached via Redis.
     """
-    # Basic validation
-    if not payload.resume_text.strip():
-        raise HTTPException(status_code=400, detail="resume_text cannot be empty")
-    if not payload.job_description.strip():
-        raise HTTPException(status_code=400, detail="job_description cannot be empty")
+    if not payload.resume_text.strip() or not payload.job_description.strip():
+        raise HTTPException(status_code=400, detail="resume_text and job_description cannot be empty")
+
+    # Generate cache key
+    combined_text = payload.resume_text + payload.job_description
+    cache_key = f"match:{hashlib.sha256(combined_text.encode()).hexdigest()}"
+    
+    # Check cache
+    cached_result = await get_cache(cache_key)
+    if cached_result:
+        cached_result['is_cached'] = True
+        return MatchResponse(**cached_result)
 
     try:
-        # 1) Preprocess texts
+        # Preprocessing for token counts (and fallback ML)
         resume_clean = process_text(payload.resume_text)
         job_clean = process_text(payload.job_description)
         
-        if not resume_clean:
-            raise HTTPException(status_code=400, detail="Resume text has no meaningful content after preprocessing")
-        if not job_clean:
-            raise HTTPException(status_code=400, detail="Job description has no meaningful content after preprocessing")
-
-        # 2) Vectorize using pre-trained model (transform only, no fit)
-        resume_vec = vectorizer.transform([resume_clean])
-        job_vec = vectorizer.transform([job_clean])
-
-        # 3) Compute similarity
-        score = compute_similarity(resume_vec, job_vec)
-        
-        # Count tokens for response
+        if not resume_clean or not job_clean:
+            raise HTTPException(status_code=400, detail="Texts have no meaningful content after preprocessing")
+            
         resume_tokens = len(resume_clean.split())
         job_tokens = len(job_clean.split())
 
-        return MatchResponse(
-            match_score=score,
-            processed_resume_tokens=resume_tokens,
-            processed_job_tokens=job_tokens
-        )
+        # Try LLM Matching
+        llm_result = await llm_match_resume(payload.resume_text, payload.job_description)
+        
+        if llm_result:
+            result_dict = {
+                "match_score": llm_result["match_score"],
+                "processed_resume_tokens": resume_tokens,
+                "processed_job_tokens": job_tokens,
+                "matched_keywords": llm_result["matched_keywords"],
+                "missing_keywords": llm_result["missing_keywords"],
+                "suggestions": llm_result["suggestions"],
+                "used_llm": True
+            }
+        else:
+            # Fallback to ML Model
+            resume_vec = vectorizer.transform([resume_clean])
+            job_vec = vectorizer.transform([job_clean])
+            score = compute_similarity(resume_vec, job_vec)
+            result_dict = {
+                "match_score": score,
+                "processed_resume_tokens": resume_tokens,
+                "processed_job_tokens": job_tokens,
+                "used_llm": False
+            }
+            
+        # Save to cache
+        await set_cache(cache_key, result_dict, expire_secs=86400) # 24 hours
+        
+        result_dict["is_cached"] = False
+        return MatchResponse(**result_dict)
+        
     except HTTPException:
         raise
     except Exception as e:
@@ -147,7 +181,7 @@ def retrain_model(admin_token: str = Depends(verify_admin_token)):
         import sys
         from pathlib import Path as PathLib
         # Add project root to path if not already there
-        project_root = PathLib(__file__).resolve().parents[2]
+        project_root = PathLib(__file__).resolve().parents[3]
         if str(project_root) not in sys.path:
             sys.path.insert(0, str(project_root))
         
@@ -243,7 +277,9 @@ async def upload_resume(file: UploadFile = File(...)):
 
 
 @router.post("/upload/match", response_model=MatchResponse)
+@limiter.limit("20/minute")
 async def upload_and_match(
+    request: Request,
     resume_file: UploadFile = File(...),
     job_description: str = None,
     vectorizer: TextVectorizer = Depends(get_vectorizer)
@@ -267,25 +303,56 @@ async def upload_and_match(
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Failed to parse PDF: {str(e)}")
     
+    # Generate cache key
+    combined_text = resume_text + job_description
+    cache_key = f"match_upload:{hashlib.sha256(combined_text.encode()).hexdigest()}"
+    
+    # Check cache
+    cached_result = await get_cache(cache_key)
+    if cached_result:
+        cached_result['is_cached'] = True
+        return MatchResponse(**cached_result)
+    
     # Process matching
     try:
         resume_clean = process_text(resume_text)
         job_clean = process_text(job_description)
         
-        if not resume_clean:
-            raise HTTPException(status_code=400, detail="Resume has no meaningful content")
-        if not job_clean:
-            raise HTTPException(status_code=400, detail="Job description has no meaningful content")
+        if not resume_clean or not job_clean:
+            raise HTTPException(status_code=400, detail="Texts have no meaningful content after preprocessing")
+            
+        resume_tokens = len(resume_clean.split())
+        job_tokens = len(job_clean.split())
+
+        # Try LLM Matching
+        llm_result = await llm_match_resume(resume_text, job_description)
         
-        resume_vec = vectorizer.transform([resume_clean])
-        job_vec = vectorizer.transform([job_clean])
-        score = compute_similarity(resume_vec, job_vec)
+        if llm_result:
+            result_dict = {
+                "match_score": llm_result["match_score"],
+                "processed_resume_tokens": resume_tokens,
+                "processed_job_tokens": job_tokens,
+                "matched_keywords": llm_result["matched_keywords"],
+                "missing_keywords": llm_result["missing_keywords"],
+                "suggestions": llm_result["suggestions"],
+                "used_llm": True
+            }
+        else:
+            resume_vec = vectorizer.transform([resume_clean])
+            job_vec = vectorizer.transform([job_clean])
+            score = compute_similarity(resume_vec, job_vec)
+            result_dict = {
+                "match_score": score,
+                "processed_resume_tokens": resume_tokens,
+                "processed_job_tokens": job_tokens,
+                "used_llm": False
+            }
+            
+        await set_cache(cache_key, result_dict, expire_secs=86400)
         
-        return MatchResponse(
-            match_score=score,
-            processed_resume_tokens=len(resume_clean.split()),
-            processed_job_tokens=len(job_clean.split())
-        )
+        result_dict["is_cached"] = False
+        return MatchResponse(**result_dict)
+        
     except HTTPException:
         raise
     except Exception as e:

@@ -4,9 +4,19 @@ from contextlib import asynccontextmanager
 import logging
 from pathlib import Path
 
+from pathlib import Path
+
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+
+from app.core.limiter import limiter
+from app.core.cache import init_redis, close_redis
+
 from app.api.routes import router as api_router
 from app.api.auth_routes import router as auth_router
 from app.api.resume_routes import router as resume_router
+from app.api.admin_routes import router as admin_router
 from app.core.config import settings
 from app.core.dependencies import set_vectorizer
 from app.services.vectorizer import TextVectorizer
@@ -30,6 +40,9 @@ async def lifespan(app: FastAPI):
     """
     # Startup
     logger.info("🚀 Starting AI Resume Analyzer...")
+    
+    # Initialize Redis Cache
+    await init_redis()
     
     # Try to load the pre-trained vectorizer
     if settings.VECTOR_PATH.exists():
@@ -61,6 +74,9 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("👋 Shutting down AI Resume Analyzer...")
+    
+    # Close Redis Cache
+    await close_redis()
 
 
 def create_app() -> FastAPI:
@@ -80,9 +96,15 @@ def create_app() -> FastAPI:
         allow_headers=["*", "Authorization"],
     )
     
+    # Configure Rate Limiting
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(SlowAPIMiddleware)
+    
     app.include_router(auth_router, prefix="/api")
     app.include_router(resume_router, prefix="/api")
     app.include_router(api_router, prefix="/api")
+    app.include_router(admin_router, prefix="/api")
     return app
 
 

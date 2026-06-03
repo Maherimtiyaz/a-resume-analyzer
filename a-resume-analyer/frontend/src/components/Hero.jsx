@@ -20,20 +20,30 @@ export default function Hero({ onGetStarted, onResumeBuilder, onPricing }) {
           </motion.div>
 
           {/* Main Heading */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight">
+          <motion.h1 
+            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight tracking-tight"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, type: "spring", bounce: 0.4 }}
+          >
             <span className="gradient-text animate-gradient">
               Smart Resume
             </span>
             <br />
-            <span className="text-white">Analyzer</span>
-          </h1>
+            <span className="text-white drop-shadow-2xl">Analyzer</span>
+          </motion.h1>
 
           {/* Subheading */}
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+          <motion.p 
+            className="text-lg md:text-xl text-gray-400 mb-12 max-w-2xl mx-auto leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.3 }}
+          >
             Build ATS-friendly resumes, match your skills with perfect jobs, and optimize your career with{' '}
-            <span className="text-primary-500 font-semibold">AI-powered</span> analytics.{' '}
-            <span className="text-accent-500 font-semibold">Free trial included</span>.
-          </p>
+            <span className="text-primary-500 font-medium hover:text-primary-400 transition-colors cursor-default">AI-powered</span> analytics.{' '}
+            <span className="text-accent-500 font-medium">Free trial included</span>.
+          </motion.p>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 flex-wrap">
@@ -83,15 +93,17 @@ export default function Hero({ onGetStarted, onResumeBuilder, onPricing }) {
             ].map((stat, i) => (
               <motion.div
                 key={i}
-                className="glass p-6 rounded-2xl"
-                initial={{ opacity: 0, y: 20 }}
+                className="glass p-6 rounded-2xl relative overflow-hidden group cursor-pointer"
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 * i }}
-                whileHover={{ y: -5 }}
+                transition={{ delay: 0.4 + (0.1 * i), type: "spring", stiffness: 100 }}
+                whileHover={{ y: -10, scale: 1.02, rotateX: 5, rotateY: 5 }}
+                style={{ perspective: 1000 }}
               >
-                <stat.icon className="w-8 h-8 text-primary-500 mx-auto mb-2" />
-                <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
-                <div className="text-sm text-gray-400">{stat.label}</div>
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <stat.icon className="w-8 h-8 text-primary-500 mx-auto mb-2 transform group-hover:scale-110 transition-transform duration-500" />
+                <div className="text-3xl font-bold text-white mb-1 drop-shadow-md">{stat.value}</div>
+                <div className="text-sm text-gray-400 font-medium tracking-wide">{stat.label}</div>
               </motion.div>
             ))}
           </div>

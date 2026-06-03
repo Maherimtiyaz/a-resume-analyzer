@@ -76,13 +76,15 @@ export default function Features() {
             {features.filter(f => f.tier === 'free').map((feature, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="glass glass-hover p-6 rounded-2xl group cursor-pointer"
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
+                whileHover={{ y: -10, scale: 1.02, rotateX: 5, rotateY: -5 }}
+                style={{ perspective: 1000 }}
+                className="glass p-6 rounded-2xl group cursor-pointer relative overflow-hidden"
               >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
@@ -114,13 +116,15 @@ export default function Features() {
             {features.filter(f => f.tier === 'paid').map((feature, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                whileHover={{ y: -5 }}
-                className="glass glass-hover p-6 rounded-2xl group cursor-pointer border border-primary-500/30 hover:border-primary-500/60"
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
+                whileHover={{ y: -10, scale: 1.02, rotateX: 5, rotateY: -5 }}
+                style={{ perspective: 1000 }}
+                className="glass p-6 rounded-2xl group cursor-pointer border border-primary-500/30 hover:border-primary-500/60 relative overflow-hidden"
               >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-primary-500/30`}>
                   <feature.icon className="w-6 h-6 text-white" />
                 </div>
